@@ -15,8 +15,7 @@
 
 namespace gleam {
 
-class ApplicationContextXYZ::Impl {
-public:
+struct ApplicationContextXYZ::Impl {
     std::unique_ptr<PerformanceGraph> performance_graph;
     std::shared_ptr<Scene> scene;
     std::shared_ptr<Camera> camera;
@@ -24,11 +23,8 @@ public:
     std::unique_ptr<Renderer> renderer;
     std::unique_ptr<SharedContext> shared_context;
 
-    ApplicationContextXYZ::Impl() {
-        performance_graph = std::make_unique<PerformanceGraph>();
-    }
-
     auto InitializeWindow(const ApplicationContextXYZ::Parameters& params) -> bool {
+        performance_graph = std::make_unique<PerformanceGraph>();
         const auto window_params = Window::Parameters {
             .width = params.width,
             .height = params.height,
@@ -58,11 +54,13 @@ public:
     }
 };
 
+ApplicationContextXYZ::ApplicationContextXYZ() : impl_(std::make_unique<Impl>()) {}
+
 auto ApplicationContextXYZ::Setup() -> void {
+    Configure();
+
     impl_->InitializeWindow(params);
     impl_->InitializeRenderer();
-
-    Configure();
 
     SetScene(CreateScene());
     SetCamera(CreateCamera());
@@ -109,8 +107,10 @@ auto ApplicationContextXYZ::Start() -> void {
 
         if (Update(delta)) {
             const auto start_time = timer.GetElapsedMilliseconds();
-            impl_->scene->ProcessUpdates(delta);
-            impl_->renderer->Render(impl_->scene.get(), impl_->camera.get());
+            if (impl_->scene ){
+                impl_->scene->ProcessUpdates(delta);
+                impl_->renderer->Render(impl_->scene.get(), impl_->camera.get());
+            }
             const auto end_time = timer.GetElapsedMilliseconds();
 
             frame_time_ms = end_time - start_time;
