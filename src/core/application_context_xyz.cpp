@@ -44,12 +44,13 @@ struct ApplicationContextXYZ::Impl {
         return window->HasErrors() ? false : true;
     }
 
-    auto InitializeRenderer() -> bool {
+    auto InitializeRenderer(const ApplicationContextXYZ::Parameters& params) -> bool {
         const auto renderer_params = Renderer::Parameters {
             .width = window->Width(),
             .height = window->Height()
         };
         renderer = std::make_unique<Renderer>(renderer_params);
+        renderer->SetClearColor(params.clear_color);
         return true;
     }
 };
@@ -60,13 +61,14 @@ auto ApplicationContextXYZ::Setup() -> void {
     Configure();
 
     impl_->InitializeWindow(params);
-    impl_->InitializeRenderer();
+    impl_->InitializeRenderer(params);
 
-    SetScene(CreateScene());
     SetCamera(CreateCamera());
     if (!impl_->camera) {
         impl_->camera = CreateDefaultCamera();
     }
+
+    SetScene(CreateScene());
 }
 
 auto ApplicationContextXYZ::CreateDefaultCamera() const -> std::shared_ptr<Camera> {

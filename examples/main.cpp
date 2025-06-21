@@ -134,6 +134,8 @@ private:
         if (scene_name == "Lerp Animation Test") {
             scene_ = std::make_shared<ExampleLerpAnimationTest>(camera_);
         }
+
+        SetScene(scene_);
     }
 };
 
